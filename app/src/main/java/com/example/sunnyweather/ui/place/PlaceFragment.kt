@@ -16,13 +16,14 @@ import com.example.sunnyweather.MainActivity
 import com.example.sunnyweather.R
 import com.example.sunnyweather.databinding.FragmentPlaceBinding
 import androidx.fragment.app.viewModels
+import com.example.sunnyweather.ui.weather.WeatherActivity
 
 class PlaceFragment : Fragment() {
 
     private var _binding: FragmentPlaceBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: PlaceViewModel by viewModels()
+    val viewModel: PlaceViewModel by viewModels()
     private lateinit var adapter: PlaceAdapter
 
     override fun onCreateView(
@@ -34,6 +35,18 @@ class PlaceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (activity is MainActivity && viewModel.isPlaceSaved()) {
+            val place = viewModel.getSavedPlace()
+            val intent = Intent(context, WeatherActivity::class.java).apply {
+                putExtra("location_lng", place.location.lng)
+                putExtra("location_lat", place.location.lat)
+                putExtra("place_name", place.name)
+            }
+            startActivity(intent)
+            activity?.finish()
+            return
+        }
 
         // 使用 binding 替代 recyclerView、searchPlaceEdit 等
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
